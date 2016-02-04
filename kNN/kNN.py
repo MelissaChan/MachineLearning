@@ -54,7 +54,18 @@ def file2matrix(filename):
         index += 1
     return returnMat,classLabelVector
 
-# 测试
+# 归一化
+def autoNorm(dataSet):
+    minVals = dataSet.min(0)
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = zeros(shape(dataSet))
+    m = dataSet.shape[0]
+    normDataSet = dataSet - tile(minVals,(m,1))
+    normDataSet = normDataSet/tile(ranges,(m,1))
+    return normDataSet,ranges,minVals
+
+# 编写时测试
 group,lables = createDataSet()
 print classify([1,1.1],group,lables,3)
 print "--------------------"
@@ -62,4 +73,53 @@ datingDataMat,datingLables = file2matrix("datingTestSet2.txt")
 print datingDataMat
 print "--------------------"
 print datingLables[0:20]
+print "--------------------"
+print autoNorm(datingDataMat)
+print "--------------------"
+
+# 散点图
+import matplotlib
+import matplotlib.pyplot as plt
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.scatter(datingDataMat[:,0],datingDataMat[:,1],15.0*array(datingLables),15.0*array(datingLables))
+plt.show()
+
+# 完全版测试
+def datingClassText():
+    hoRio = 0.10 # 训练测试比
+    datingDataMat,datingLables = file2matrix("datingTestSet2.txt")
+    normMat,ranges,minVals = autoNorm(datingDataMat)
+    m = normMat.shape[0]
+    numTextVecs = int(m*hoRio)
+    errorCount = 0.0
+    for i in range(numTextVecs):
+        classifyResult = classify(normMat[i,:],normMat[numTextVecs:m,:],datingLables[numTextVecs:m],3)
+        #print "classify result: %d, real reult: %d"%(classifyResult,datingLables[i])
+        if(classifyResult != datingLables[i]):
+            errorCount += 1.0
+    print "error rate : %f" %(errorCount / float(numTextVecs))
+
+datingClassText()
+
+# 约会网站预测函数
+def classifyPerson():
+    resultList = ["完全不对眼","一般般喜欢","爱死了！"]
+    game = float(raw_input("用来玩游戏的时间比例是？"))
+    miles = float(raw_input("每年获得的飞行常旅客公里数？"))
+    iceCream = float(raw_input("每天吃的冰淇淋公升数量？"))
+    datingDataMat,datingLables = file2matrix("datingTestSet2.txt")
+    normMat,ranges,minVals = autoNorm(datingDataMat)
+    inArr = array([game,miles,iceCream])
+    classifyResult = classify((inArr - minVals) / ranges,normMat,datingLables,3)
+    print resultList[classifyResult - 1]
+
+classifyPerson()
+
+
+
+
+
+
+
 
