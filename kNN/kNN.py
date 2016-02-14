@@ -7,6 +7,7 @@ import operator
 
 # k-近邻算法
 # 参数：输入、训练集、标签、邻近数目
+# 分类器
 def classify(inX,dataSet,lables,k):
     # 1.距离计算
     dataSetSize = dataSet.shape[0]                  # 训练集大小
@@ -54,6 +55,15 @@ def file2matrix(filename):
         index += 1
     return returnMat,classLabelVector
 
+def img2vector(filename):
+    returnVect = zeros((1,1024))
+    fr = open(filename)
+    for i in range(32):
+        lineStr = fr.readline()
+        for j in range(32):
+            returnVect[0,32*i+j] = int(lineStr[j])
+    return returnVect
+
 # 归一化
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
@@ -85,7 +95,7 @@ ax = fig.add_subplot(111)
 ax.scatter(datingDataMat[:,0],datingDataMat[:,1],15.0*array(datingLables),15.0*array(datingLables))
 plt.show()
 
-# 完全版测试
+# 完全版测试 约会系统
 def datingClassText():
     hoRio = 0.10 # 训练测试比
     datingDataMat,datingLables = file2matrix("datingTestSet2.txt")
@@ -116,10 +126,30 @@ def classifyPerson():
 
 classifyPerson()
 
+# 测试 手写数字识别系统
+from os import listdir
+def handwritingClassTest():
+    hwLabels = []
+    trainingFileList = listdir('trainingDigits')
+    m = len(trainingFileList)
+    trainingMat = zeros((m,1024))
+    for i in range(m):
+        fileNameStr = trainingFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        hwLabels.append(classNumStr)
+        trainingMat[i,:] = img2vector('trainingDigits/%s' % fileNameStr)
+    testFileList = listdir('testDigits')
+    errorCount = 0.0
+    mTest = len(testFileList)
+    for i in range(mTest):
+        fileNameStr = testFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        vectorUnderTest = img2vector('testDigits/%s' % fileNameStr)
+        classifierResult = classify(vectorUnderTest, trainingMat, hwLabels, 3)
+        print "classify result: %d, real answer: %d" % (classifierResult, classNumStr)
+        if (classifierResult != classNumStr): errorCount += 1.0
+    print "error rate: %f" % (errorCount/float(mTest))
 
-
-
-
-
-
-
+handwritingClassTest()
