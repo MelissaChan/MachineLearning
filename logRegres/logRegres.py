@@ -93,21 +93,76 @@ def plotBestFit(weights):
     plt.show()
 
 # 测试
-dataArr, lablesMat = loadDataSet()
-# weights =  gradAscent(dataArr, lablesMat)
-# weights = stocGradAscent0(dataArr,lablesMat)
-weights = stocGradAscent1(dataArr,lablesMat)
-# plotBestFit(weights.getA())
+# dataArr, lablesMat = loadDataSet()
+# weights = stocGradAscent1(dataArr,lablesMat)
+# # plotBestFit(weights.getA())
 # plotBestFit(weights)
-plotBestFit(weights)
 
+# 算法测试
+# 用sigmoid函数分类
+def classify(inX,weights):
+    prob = sigmoid(sum(inX * weights))
+    if prob > 0.5:
+        return 1.0
+    else:return 0.0
+# def colicTest():
+#     # 打开测试集和训练集，并格式化数据
+#     frTrain = open('/home/melissa/桌面/机器学习实战及配套代码/machinelearninginaction/Ch05/horseColicTraining.txt')
+#     frTest = open('/home/melissa/桌面/机器学习实战及配套代码/machinelearninginaction/Ch05/horseColicTest.txt')
+#     trainingSet = []; trainingLables = []
+#     for line in frTrain.readline():
+#         currLine = line.strip().split()
+#         lineArr = []
+#         for i in range(21): # 20个特征值
+#             lineArr.append(float(currLine[i]))
+#         trainingSet.append(lineArr)
+#         trainingLables.append(float(currLine[21]))
+#         # 训练
+#     trainWeights = stocGradAscent1(array(trainingSet),trainingLables,500)
+#         # 测试
+#     errorCount = 0; numTestVec= 0.0
+#     for line in frTest.readline():
+#         numTestVec += 1.0
+#         currLine = line.strip().split('\t')
+#         lineArr = []
+#         for i in range(21):
+#             lineArr.append(float(currLine[i]))
+#         if int(classify(array(lineArr),trainWeights)) != int(currLine[21]):
+#             errorCount += 1
+#     errorRate = (float(errorCount)/numTestVec)
+#     print "the error rate is: %f", errorRate
+#     return errorRate
+def colicTest():
+    frTrain = open('/home/melissa/桌面/机器学习实战及配套代码/machinelearninginaction/Ch05/horseColicTraining.txt')
+    frTest = open('/home/melissa/桌面/机器学习实战及配套代码/machinelearninginaction/Ch05/horseColicTest.txt')
+    trainingSet = []; trainingLabels = []
+    for line in frTrain.readlines():
+        currLine = line.strip().split('\t')
+        lineArr =[]
+        for i in range(21):
+            lineArr.append(float(currLine[i]))
+        trainingSet.append(lineArr)
+        trainingLabels.append(float(currLine[21]))
+    trainWeights = stocGradAscent1(array(trainingSet), trainingLabels, 1000)
+    errorCount = 0; numTestVec = 0.0
+    for line in frTest.readlines():
+        numTestVec += 1.0
+        currLine = line.strip().split('\t')
+        lineArr =[]
+        for i in range(21):
+            lineArr.append(float(currLine[i]))
+        if int(classify(array(lineArr), trainWeights))!= int(currLine[21]):
+            errorCount += 1
+    errorRate = (float(errorCount)/numTestVec)
+    print "the error rate of this test is: %f" % errorRate
+    return errorRate
+# 重复进行，计算平均errorRate
+def multiTest(numTest):
+    errorSum = 0.0
+    for i in  range(numTest):
+        errorSum += colicTest()
+    aveErrorRate = errorSum/float(numTest)
+    print "the average error rate in %d tests is %d",numTest,aveErrorRate
+    return aveErrorRate
 
-
-
-
-
-
-
-
-
-
+multiTest(10)
